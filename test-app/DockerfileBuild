@@ -1,0 +1,27 @@
+# Etap budowy aplikacji
+FROM node:18 AS build
+
+WORKDIR /app
+
+# Kopiowanie plików projektu
+COPY package.json package-lock.json ./
+
+# Instalacja zależności
+RUN npm install
+
+COPY . .
+
+# Budowanie aplikacji
+RUN npm run build
+
+# Etap uruchomienia
+FROM nginx:1.23
+
+WORKDIR /usr/share/nginx/html
+
+# Kopiowanie zbudowanej aplikacji do Nginx
+COPY --from=build /app/build .
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
